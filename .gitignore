@@ -1,0 +1,5 @@
+netlogger
+logs/
+*.log.txt
+.DS_Store
+vendor/

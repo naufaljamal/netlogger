@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NetLogger</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css"/>
+<script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+<style>
+/* ── Theme variables ── */
+:root {
+  --bg:        #1a1a1a;
+  --bg2:       #111111;
+  --bg3:       #222222;
+  --bg4:       #161616;
+  --border:    #2a2a2a;
+  --border2:   #1e1e1e;
+  --text:      #cccccc;
+  --text-dim:  #555555;
+  --text-mid:  #888888;
+  --accent:    #76b900;
+  --accent-hov:#8fd400;
+  --accent-dim:#3a5c00;
+  --danger:    #c0392b;
+  --success:   #76b900;
+  --input-bg:  #0f0f0f;
+  --term-bg:   #1a1a1a;
+  --term-fg:   #d4d4d4;
+  --term-sel:  #264f78;
+}
+body.light {
+  --bg:        #f2f2f2;
+  --bg2:       #e4e4e4;
+  --bg3:       #ffffff;
+  --bg4:       #f8f8f8;
+  --border:    #cccccc;
+  --border2:   #e8e8e8;
+  --text:      #1a1a1a;
+  --text-dim:  #888888;
+  --text-mid:  #555555;
+  --accent:    #5a8f00;
+  --accent-hov:#76b900;
+  --accent-dim:#d4edaa;
+  --danger:    #c0392b;
+  --success:   #5a8f00;
+  --input-bg:  #ffffff;
+  --term-bg:   #ffffff;
+  --term-fg:   #1a1a1a;
+  --term-sel:  #b3d4ff;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono',Consolas,monospace;height:100vh;display:flex;flex-direction:column;overflow:hidden;transition:background .2s,color .2s}
+
+/* ── Brand bar ── */
+.brandbar{display:flex;align-items:center;gap:10px;padding:0 16px;height:50px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.brand-tool{font-size:18px;font-weight:700;color:var(--text);letter-spacing:.5px}
+.brand-spacer{flex:1}
+.theme-btn{background:transparent;border:1px solid var(--border);color:var(--text-mid);border-radius:5px;padding:5px 12px;cursor:pointer;font-size:13px;font-family:inherit;transition:all .15s}
+.theme-btn:hover{border-color:var(--accent);color:var(--text)}
+
+/* ── Tab bar ── */
+.tabbar{display:flex;align-items:stretch;background:var(--bg2);border-bottom:2px solid var(--border);height:36px;padding:0 8px;gap:2px;flex-shrink:0;overflow-x:auto;overflow-y:hidden}
+.tabbar::-webkit-scrollbar{height:3px}
+.tabbar::-webkit-scrollbar-thumb{background:var(--border)}
+.tab{display:flex;align-items:center;gap:8px;padding:0 14px;cursor:pointer;font-size:13px;color:var(--text-dim);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;flex-shrink:0;user-select:none;transition:color .15s}
+.tab:hover{color:var(--text);background:var(--bg)}
+.tab.active{color:var(--text);border-bottom-color:var(--accent)}
+.tab .dot{width:7px;height:7px;border-radius:50%;background:var(--success);flex-shrink:0}
+.tab .dot.off{background:var(--text-dim)}
+.tab .x{opacity:0;font-size:11px;color:var(--text-dim);padding:2px 4px;border-radius:3px;transition:opacity .1s}
+.tab:hover .x{opacity:1}
+.tab .x:hover{background:var(--border);color:var(--text)}
+.tab-action{display:flex;align-items:center;padding:0 14px;cursor:pointer;font-size:13px;color:var(--text-dim);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;flex-shrink:0;transition:color .15s}
+.tab-action:hover{color:var(--text);background:var(--bg)}
+.tab-action.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tabbar-spacer{flex:1}
+.tab-new{display:flex;align-items:center;padding:0 14px;cursor:pointer;font-size:13px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;transition:color .15s}
+.tab-new:hover{color:var(--accent)}
+
+/* ── Content ── */
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+
+/* ── Connect form ── */
+.form-wrap{display:flex;align-items:center;justify-content:center;flex:1}
+.connect-form{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:36px 44px;width:360px}
+.connect-form h2{color:var(--text);font-size:18px;margin-bottom:24px;font-weight:600}
+.field{margin-bottom:16px}
+.field label{display:block;color:var(--text-mid);font-size:12px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.field input{width:100%;padding:9px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color .15s}
+.field input:focus{border-color:var(--accent)}
+.btn-connect{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:8px;transition:background .15s}
+.btn-connect:hover{background:var(--accent-hov)}
+.btn-connect:disabled{background:var(--border);color:var(--text-dim);cursor:default}
+.form-error{color:#f66;font-size:12px;margin-top:10px;display:none}
+
+/* ── Terminal ── */
+.terminal-pane{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.xterm-wrap{flex:1;padding:6px 8px;overflow:hidden;background:var(--term-bg)}
+.term-footer{display:flex;align-items:center;gap:12px;padding:7px 14px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0}
+.conn-dot{width:7px;height:7px;border-radius:50%;background:var(--success);flex-shrink:0}
+.conn-dot.off{background:var(--text-dim)}
+.conn-label{flex:1;font-size:13px;color:var(--text-mid)}
+.btn-exit{padding:5px 18px;border:1px solid var(--danger);background:transparent;color:var(--danger);border-radius:4px;cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s}
+.btn-exit:hover{background:var(--danger);color:#fff}
+
+/* ── Logs panel ── */
+.logs-layout{flex:1;display:flex;overflow:hidden}
+.logs-sidebar{width:300px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.logs-search{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+.date-row{display:flex;align-items:center;gap:8px;font-size:12px}
+.date-row label{color:var(--text-mid);width:28px;flex-shrink:0}
+.date-row input[type=date]{flex:1;padding:6px 8px;background:var(--input-bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;font-family:inherit;outline:none}
+.date-row input[type=date]:focus{border-color:var(--accent)}
+.btn-search{padding:7px;background:var(--accent);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;width:100%;font-family:inherit;transition:background .15s}
+.btn-search:hover{background:var(--accent-hov)}
+.logs-list{flex:1;overflow-y:auto}
+.logs-list::-webkit-scrollbar{width:5px}
+.logs-list::-webkit-scrollbar-thumb{background:var(--border)}
+.date-group-header{padding:7px 14px;font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;background:var(--bg2);border-bottom:1px solid var(--border2);position:sticky;top:0;z-index:1}
+.device-header{padding:6px 14px 6px 20px;font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border2)}
+.log-entry{padding:8px 14px 8px 28px;font-size:13px;color:var(--text-dim);cursor:pointer;border-bottom:1px solid var(--border2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .1s}
+.log-entry:hover{background:var(--bg3);color:var(--text)}
+.log-entry.selected{background:var(--accent-dim);color:var(--accent);border-left:2px solid var(--accent);padding-left:26px}
+.logs-viewer{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.viewer-header{padding:10px 16px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text-mid);flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.viewer-body{flex:1;overflow-y:auto;padding:16px;font-size:13px;line-height:1.7;white-space:pre-wrap;color:var(--text)}
+.viewer-body::-webkit-scrollbar{width:5px}
+.viewer-body::-webkit-scrollbar-thumb{background:var(--border)}
+.empty-state{display:flex;align-items:center;justify-content:center;flex:1;color:var(--text-dim);font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- Brand bar -->
+<div class="brandbar">
+  <span class="brand-tool">NetLogger</span>
+  <div class="brand-spacer"></div>
+  <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
+</div>
+
+<!-- Tab bar -->
+<div class="tabbar" id="tabbar">
+  <div class="tab-action active" id="tab-logs-btn" onclick="activateLogs()">Logs</div>
+  <div class="tabbar-spacer"></div>
+  <div class="tab-new" onclick="newTab()">＋ New Session</div>
+</div>
+
+<div class="content" id="content"></div>
+
+<script>
+// ── Theme ─────────────────────────────────────────────────────────────────────
+const DARK_THEME  = { background:'#1a1a1a', foreground:'#d4d4d4', cursor:'#ffffff', cursorAccent:'#1a1a1a', selectionBackground:'#264f78' };
+const LIGHT_THEME = { background:'#ffffff', foreground:'#1a1a1a', cursor:'#333333', cursorAccent:'#ffffff', selectionBackground:'#b3d4ff' };
+
+let isDark = localStorage.getItem('netlogger-theme') !== 'light';
+
+function applyTheme() {
+  document.body.classList.toggle('light', !isDark);
+  const btn = document.getElementById('theme-btn');
+  if (btn) btn.textContent = isDark ? '🌙 Dark' : '☀️ Light';
+  tabs.forEach(t => { if (t.term) t.term.options.theme = isDark ? DARK_THEME : LIGHT_THEME; });
+}
+
+function toggleTheme() {
+  isDark = !isDark;
+  localStorage.setItem('netlogger-theme', isDark ? 'dark' : 'light');
+  applyTheme();
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function b64encode(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
+}
+function b64decode(b64) {
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+// NOTE: tabs must be declared before applyTheme() is called
+let tabs       = [];
+let activeId   = null;
+let logsActive = true;
+
+// ── Tab management ────────────────────────────────────────────────────────────
+function newTab() {
+  const id = 't' + Date.now();
+  tabs.push({ id, device:null, ws:null, term:null, fit:null, connected:false, outputQueue:[] });
+  logsActive = false;
+  activeId = id;
+  redrawTabBar();
+  redrawContent();
+}
+
+function activateTab(id) {
+  logsActive = false;
+  activeId = id;
+  redrawTabBar();
+  redrawContent();
+}
+
+function activateLogs() {
+  logsActive = true;
+  activeId = null;
+  redrawTabBar();
+  redrawContent();
+}
+
+function closeTab(id, e) {
+  e.stopPropagation();
+  const idx = tabs.findIndex(t => t.id === id);
+  if (idx === -1) return;
+  const tab = tabs[idx];
+  if (tab.ws) tab.ws.close();
+  if (tab.term) tab.term.dispose();
+  tabs.splice(idx, 1);
+  if (activeId === id) {
+    const next = tabs[Math.min(idx, tabs.length - 1)];
+    if (next) { activeId = next.id; logsActive = false; }
+    else { activeId = null; logsActive = true; }
+  }
+  redrawTabBar();
+  redrawContent();
+}
+
+function redrawTabBar() {
+  const bar = document.getElementById('tabbar');
+  bar.querySelectorAll('.tab').forEach(el => el.remove());
+  document.getElementById('tab-logs-btn').className = 'tab-action' + (logsActive ? ' active' : '');
+
+  const spacer = bar.querySelector('.tabbar-spacer');
+  tabs.forEach(tab => {
+    const el = document.createElement('div');
+    el.className = 'tab' + (tab.id === activeId && !logsActive ? ' active' : '');
+    el.onclick = () => activateTab(tab.id);
+    el.innerHTML =
+      `<span class="${tab.connected ? 'dot' : 'dot off'}" id="dot-${tab.id}"></span>` +
+      `<span>${tab.device || 'New Session'}</span>` +
+      `<span class="x" onclick="closeTab('${tab.id}',event)">✕</span>`;
+    bar.insertBefore(el, spacer);
+  });
+}
+
+// ── Content ───────────────────────────────────────────────────────────────────
+function redrawContent() {
+  const c = document.getElementById('content');
+  c.innerHTML = '';
+  if (logsActive) { renderLogs(c); return; }
+  const tab = tabs.find(t => t.id === activeId);
+  if (!tab) {
+    c.innerHTML = '<div class="empty-state">Click "＋ New Session" to connect to a device.</div>';
+    return;
+  }
+  if (!tab.connected && !tab.term) renderForm(c, tab);
+  else renderTerminal(c, tab);
+}
+
+// ── Connect form ──────────────────────────────────────────────────────────────
+function renderForm(c, tab) {
+  c.innerHTML = `
+    <div class="form-wrap">
+      <div class="connect-form">
+        <h2>Connect to Device</h2>
+        <div class="field">
+          <label>Device Hostname / IP</label>
+          <input id="f-dev" type="text" placeholder="spine01-dc7" autocomplete="off"/>
+        </div>
+        <div class="field">
+          <label>Username</label>
+          <input id="f-usr" type="text" placeholder="ro" autocomplete="off"/>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input id="f-pwd" type="password" placeholder="Leave blank for SSH key auth"/>
+        </div>
+        <button class="btn-connect" id="btn-conn" onclick="doConnect('${tab.id}')">Connect</button>
+        <div class="form-error" id="form-err"></div>
+      </div>
+    </div>`;
+  document.getElementById('f-dev').focus();
+  ['f-dev','f-usr','f-pwd'].forEach(fid =>
+    document.getElementById(fid).addEventListener('keydown', e => { if (e.key === 'Enter') doConnect(tab.id); }));
+}
+
+function doConnect(tabId) {
+  const tab = tabs.find(t => t.id === tabId);
+  if (!tab) return;
+  const device   = document.getElementById('f-dev').value.trim();
+  const username = document.getElementById('f-usr').value.trim();
+  const password = document.getElementById('f-pwd').value;
+  if (!device || !username) return;
+
+  tab.device = device;
+  document.getElementById('btn-conn').disabled = true;
+  document.getElementById('btn-conn').textContent = 'Connecting…';
+  redrawTabBar();
+
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const ws = new WebSocket(`${proto}://${location.host}/ws`);
+  tab.ws = ws;
+
+  ws.onopen = () => ws.send(JSON.stringify({ type:'connect', device, username, password }));
+
+  ws.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    switch (msg.type) {
+      case 'connected':
+        tab.connected = true;
+        redrawTabBar();
+        redrawContent();
+        if (tab.term && tab.outputQueue.length) {
+          tab.outputQueue.forEach(d => tab.term.write(b64decode(d)));
+          tab.outputQueue = [];
+        }
+        break;
+      case 'output':
+        if (tab.term) tab.term.write(b64decode(msg.data));
+        else tab.outputQueue.push(msg.data);
+        break;
+      case 'disconnected':
+        tab.connected = false;
+        redrawTabBar();
+        if (tab.term) tab.term.write('\r\n\x1b[33m[Session closed]\x1b[0m\r\n');
+        updateStatus(tabId, false);
+        break;
+      case 'committed':
+        if (tab.term) tab.term.write(`\r\n\x1b[32m✔ ${msg.message}\x1b[0m\r\n`);
+        break;
+      case 'error':
+        tab.connected = false;
+        tab.ws = null;
+        tab.term = null;
+        redrawTabBar();
+        redrawContent();
+        const errEl = document.getElementById('form-err');
+        if (errEl) { errEl.style.display = 'block'; errEl.textContent = msg.message; }
+        const btn = document.getElementById('btn-conn');
+        if (btn) { btn.disabled = false; btn.textContent = 'Connect'; }
+        break;
+    }
+  };
+
+  ws.onclose = () => { tab.connected = false; redrawTabBar(); updateStatus(tabId, false); };
+}
+
+// ── Terminal ──────────────────────────────────────────────────────────────────
+function renderTerminal(c, tab) {
+  c.innerHTML = `
+    <div class="terminal-pane">
+      <div class="xterm-wrap" id="xw-${tab.id}"></div>
+      <div class="term-footer">
+        <div class="conn-dot ${tab.connected ? '' : 'off'}" id="dot2-${tab.id}"></div>
+        <span class="conn-label" id="lbl-${tab.id}">${tab.connected ? 'Connected' : 'Disconnected'} — ${tab.device}</span>
+        <button class="btn-exit" onclick="doExit('${tab.id}')">Exit &amp; Commit</button>
+      </div>
+    </div>`;
+
+  if (tab.term) {
+    tab.term.open(document.getElementById(`xw-${tab.id}`));
+    tab.fit.fit();
+    tab.term.focus();
+    return;
+  }
+
+  const term = new Terminal({
+    theme: isDark ? DARK_THEME : LIGHT_THEME,
+    fontFamily: "'SF Mono',Consolas,monospace",
+    fontSize: 14,
+    lineHeight: 1.3,
+    cursorBlink: true,
+  });
+  const fit = new FitAddon.FitAddon();
+  term.loadAddon(fit);
+  tab.term = term;
+  tab.fit  = fit;
+
+  term.open(document.getElementById(`xw-${tab.id}`));
+  fit.fit();
+
+  if (tab.outputQueue.length) {
+    tab.outputQueue.forEach(d => term.write(b64decode(d)));
+    tab.outputQueue = [];
+  }
+
+  term.onData(data => {
+    if (tab.ws && tab.ws.readyState === WebSocket.OPEN)
+      tab.ws.send(JSON.stringify({ type:'input', data: b64encode(data) }));
+  });
+
+  term.onResize(({cols, rows}) => {
+    if (tab.ws && tab.ws.readyState === WebSocket.OPEN)
+      tab.ws.send(JSON.stringify({ type:'resize', cols, rows }));
+  });
+
+  new ResizeObserver(() => fit.fit()).observe(document.getElementById(`xw-${tab.id}`));
+  term.focus();
+}
+
+function updateStatus(tabId, connected) {
+  const d1  = document.getElementById(`dot-${tabId}`);
+  const d2  = document.getElementById(`dot2-${tabId}`);
+  const lbl = document.getElementById(`lbl-${tabId}`);
+  const tab = tabs.find(t => t.id === tabId);
+  [d1, d2].forEach(d => { if (d) d.className = 'conn-dot' + (connected ? '' : ' off'); });
+  if (lbl && tab) lbl.textContent = `${connected ? 'Connected' : 'Disconnected'} — ${tab.device}`;
+}
+
+function doExit(tabId) {
+  const tab = tabs.find(t => t.id === tabId);
+  if (tab && tab.ws && tab.ws.readyState === WebSocket.OPEN)
+    tab.ws.send(JSON.stringify({ type: 'exit' }));
+}
+
+// ── Logs panel ────────────────────────────────────────────────────────────────
+let selectedLogPath = null;
+
+function renderLogs(c) {
+  const today = new Date().toISOString().slice(0, 10);
+  c.innerHTML = `
+    <div class="logs-layout">
+      <div class="logs-sidebar">
+        <div class="logs-search">
+          <div class="date-row">
+            <label>From</label>
+            <input type="date" id="log-from" value="${today}"/>
+          </div>
+          <div class="date-row">
+            <label>To</label>
+            <input type="date" id="log-to" value="${today}"/>
+          </div>
+          <button class="btn-search" onclick="searchLogs()">Search</button>
+        </div>
+        <div class="logs-list" id="logs-list">
+          <div class="empty-state" style="height:140px">Set a date range and click Search.</div>
+        </div>
+      </div>
+      <div class="logs-viewer" id="logs-viewer">
+        <div class="empty-state">Select a log file to view its contents.</div>
+      </div>
+    </div>`;
+
+  ['log-from', 'log-to'].forEach(id =>
+    document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') searchLogs(); }));
+}
+
+async function searchLogs() {
+  const from = document.getElementById('log-from').value;
+  const to   = document.getElementById('log-to').value;
+  if (!from || !to) return;
+  if (from > to) {
+    document.getElementById('logs-list').innerHTML =
+      '<div class="empty-state" style="height:80px;color:#f66">"From" must be on or before "To".</div>';
+    return;
+  }
+
+  const list = document.getElementById('logs-list');
+  list.innerHTML = '<div class="empty-state" style="height:120px">Loading…</div>';
+
+  try {
+    const res  = await fetch(`/api/logs?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+    const data = await res.json();
+
+    if (!data || data.length === 0) {
+      list.innerHTML = '<div class="empty-state" style="height:120px">No logs found for this range.</div>';
+      return;
+    }
+
+    // Group: date → device → [files]
+    const byDate = {};
+    data.forEach(f => {
+      if (!byDate[f.date]) byDate[f.date] = {};
+      if (!byDate[f.date][f.device]) byDate[f.date][f.device] = [];
+      byDate[f.date][f.device].push(f);
+    });
+
+    list.innerHTML = '';
+    Object.keys(byDate).sort().reverse().forEach(date => {
+      const dh = document.createElement('div');
+      dh.className = 'date-group-header';
+      dh.textContent = date;
+      list.appendChild(dh);
+
+      Object.entries(byDate[date]).forEach(([dev, files]) => {
+        const dvh = document.createElement('div');
+        dvh.className = 'device-header';
+        dvh.textContent = dev;
+        list.appendChild(dvh);
+
+        files.forEach(f => {
+          const el = document.createElement('div');
+          el.className = 'log-entry' + (f.path === selectedLogPath ? ' selected' : '');
+          el.title = f.file;
+          el.textContent = f.file;
+          el.onclick = () => openLog(f.path, f.file, el);
+          list.appendChild(el);
+        });
+      });
+    });
+  } catch (err) {
+    list.innerHTML = `<div class="empty-state" style="height:120px;color:#f66">Error: ${err.message}</div>`;
+  }
+}
+
+async function openLog(path, filename, el) {
+  selectedLogPath = path;
+  document.querySelectorAll('.log-entry').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+
+  const viewer = document.getElementById('logs-viewer');
+  viewer.innerHTML =
+    `<div class="viewer-header">${filename}</div>` +
+    `<div class="viewer-body" id="vbody">Loading…</div>`;
+
+  try {
+    const res = await fetch(`/api/logs/file?path=${encodeURIComponent(path)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    document.getElementById('vbody').textContent = await res.text();
+  } catch (err) {
+    document.getElementById('vbody').textContent = `Error: ${err.message}`;
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+// applyTheme() is called here, after `tabs` is declared above
+applyTheme();
+activateLogs();
+
+window.addEventListener('resize', () => tabs.forEach(t => { if (t.fit) t.fit.fit(); }));
+</script>
+</body>
+</html>
