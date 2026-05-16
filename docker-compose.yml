@@ -1,0 +1,12 @@
+services:
+  netlogger:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - GITLAB_TOKEN=${GITLAB_TOKEN:-}
+      - GITLAB_PROJECT_ID=${GITLAB_PROJECT_ID:-}
+      - GITLAB_API_URL=${GITLAB_API_URL:-https://gitlab.com/api/v4}
+      - NETLOGGER_PASSWORD=${NETLOGGER_PASSWORD:-}

@@ -4,11 +4,13 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -21,44 +23,48 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
+// wsMsg is the JSON envelope for all WebSocket messages.
 type wsMsg struct {
-	Type     string `json:"type"`
-	Device   string `json:"device,omitempty"`
-	Username string `json:"username,omitempty"`
-	Password string `json:"password,omitempty"`
-	Data     string `json:"data,omitempty"`
-	Message  string `json:"message,omitempty"`
-	Cols     uint16 `json:"cols,omitempty"`
-	Rows     uint16 `json:"rows,omitempty"`
+	Type        string `json:"type"`
+	Device      string `json:"device,omitempty"`
+	Username    string `json:"username,omitempty"`
+	Password    string `json:"password,omitempty"`
+	SessionName string `json:"sessionName,omitempty"`
+	Data        string `json:"data,omitempty"`
+	Message     string `json:"message,omitempty"`
+	Cols        uint16 `json:"cols,omitempty"`
+	Rows        uint16 `json:"rows,omitempty"`
 }
 
-func startServer(addr string) {
-	http.HandleFunc("/ws", handleWS)
-	http.HandleFunc("/api/logs", handleLogsAPI)
-	http.HandleFunc("/api/logs/file", handleLogFile)
-	// Serve everything in static/ (images, fonts, etc.) under /static/
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	http.HandleFunc("/", serveIndex)
-	log.Printf("NetLogger: http://localhost%s\n", addr)
-	log.Fatal(http.ListenAndServe(addr, nil))
-}
-
-func serveIndex(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
+// basicAuth wraps an http.Handler with HTTP Basic Auth if NETLOGGER_PASSWORD is set.
+func basicAuth(next http.Handler) http.Handler {
+	password := os.Getenv("NETLOGGER_PASSWORD")
+	if password == "" {
+		return next
 	}
-	http.ServeFile(w, r, "static/index.html")
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/health" {
+			next.ServeHTTP(w, r)
+			return
+		}
+		_, pass, ok := r.BasicAuth()
+		if !ok || pass != password {
+			w.Header().Set("WWW-Authenticate", `Basic realm="NetLogger"`)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
-// cmdTracker accumulates raw terminal input bytes and fires onWriteMem when
-// a write mem variant is detected. Not goroutine-safe; call from one goroutine.
+// cmdTracker accumulates raw terminal input bytes and fires callbacks on
+// recognised commands. Not goroutine-safe; call from one goroutine only.
 type cmdTracker struct {
 	buf   strings.Builder
 	inEsc bool
 }
 
-func (t *cmdTracker) process(data []byte, onWriteMem func()) {
+func (t *cmdTracker) process(data []byte, onWriteMem func(), onQuit func()) {
 	for _, b := range data {
 		switch {
 		case t.inEsc:
@@ -72,6 +78,8 @@ func (t *cmdTracker) process(data []byte, onWriteMem func()) {
 			t.buf.Reset()
 			if isWriteMemCmd(cmd) {
 				go onWriteMem()
+			} else if isQuitCmd(cmd) {
+				go onQuit()
 			}
 		case b == '\x7f' || b == '\x08':
 			s := t.buf.String()
@@ -90,7 +98,7 @@ func (t *cmdTracker) process(data []byte, onWriteMem func()) {
 func handleWS(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Printf("WebSocket upgrade error: %v", err)
+		log.Printf("ws upgrade error: %v", err)
 		return
 	}
 	defer conn.Close()
@@ -102,6 +110,7 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 		connMu     sync.Mutex
 		tickerDone chan struct{}
 		tracker    cmdTracker
+		committed  bool
 	)
 
 	send := func(msg wsMsg) {
@@ -121,8 +130,8 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 			cmd.Process.Kill()
 			cmd.Wait()
 		}
-		if sess != nil {
-			sess.commitLog(fmt.Sprintf("netcli-web: [%s] session ended", sess.device))
+		if sess != nil && !committed {
+			sess.commitLog(fmt.Sprintf("netlogger-web: [%s] session ended", sess.device))
 		}
 	}()
 
@@ -139,13 +148,20 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 				send(wsMsg{Type: "error", Message: "already connected"})
 				continue
 			}
-			sess = newSession(
-				msg.Device, msg.Username,
-				fmt.Sprintf("netcli-web: [%s] session by %s", msg.Device, msg.Username),
-			)
+			sessionName := msg.SessionName
+			if sessionName == "" {
+				sessionName = fmt.Sprintf("netlogger-web: [%s] session by %s", msg.Device, msg.Username)
+			}
+			sess = newSession(msg.Device, msg.Username, sessionName)
+
+			log.Printf("ws connect: %s@%s", msg.Username, msg.Device)
+
 			cmd = exec.Command("ssh",
 				"-o", "StrictHostKeyChecking=no",
 				"-o", "UserKnownHostsFile=/dev/null",
+				"-o", "KexAlgorithms=+diffie-hellman-group14-sha1,diffie-hellman-group1-sha1",
+				"-o", "HostKeyAlgorithms=+ssh-rsa",
+				"-o", "PubkeyAcceptedAlgorithms=+ssh-rsa",
 				fmt.Sprintf("%s@%s", msg.Username, msg.Device),
 			)
 			ptmx, err = pty.Start(cmd)
@@ -155,13 +171,21 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
+			// Feed password into PTY after a short delay if supplied.
+			if msg.Password != "" {
+				go func(pw string) {
+					time.Sleep(500 * time.Millisecond)
+					ptmx.Write([]byte(pw + "\n"))
+				}(msg.Password)
+			}
+
 			send(wsMsg{Type: "connected"})
 
 			// PTY output → WebSocket
 			go func() {
 				buf := make([]byte, 4096)
 				for {
-					n, err := ptmx.Read(buf)
+					n, rdErr := ptmx.Read(buf)
 					if n > 0 {
 						sess.rawBufMu.Lock()
 						sess.rawBuf.Write(buf[:n])
@@ -171,14 +195,14 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 							Data: base64.StdEncoding.EncodeToString(buf[:n]),
 						})
 					}
-					if err != nil {
+					if rdErr != nil {
 						break
 					}
 				}
 				send(wsMsg{Type: "disconnected"})
 			}()
 
-			// Periodic auto-commit
+			// 5-minute auto-commit ticker
 			tickerDone = make(chan struct{})
 			go func(s *Session, done <-chan struct{}) {
 				ticker := time.NewTicker(5 * time.Minute)
@@ -186,7 +210,7 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 				for {
 					select {
 					case <-ticker.C:
-						s.commitLog(fmt.Sprintf("netcli-web: [%s] auto-commit (5-min interval)", s.device))
+						s.commitLog(fmt.Sprintf("netlogger-web: [%s] auto-commit (5-min)", s.device))
 					case <-done:
 						return
 					}
@@ -197,14 +221,19 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 			if ptmx == nil {
 				continue
 			}
-			data, err := base64.StdEncoding.DecodeString(msg.Data)
-			if err != nil {
+			data, decErr := base64.StdEncoding.DecodeString(msg.Data)
+			if decErr != nil {
 				continue
 			}
 			if sess != nil {
-				tracker.process(data, func() {
-					sess.commitLog(fmt.Sprintf("netcli-web: [%s] auto-commit (write mem)", sess.device))
-				})
+				tracker.process(data,
+					func() {
+						sess.commitLog(fmt.Sprintf("netlogger-web: [%s] auto-commit (write mem)", sess.device))
+					},
+					func() {
+						sess.commitLog(fmt.Sprintf("netlogger-web: [%s] auto-commit (quit/exit)", sess.device))
+					},
+				)
 			}
 			ptmx.Write(data)
 
@@ -214,9 +243,14 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 			}
 
 		case "exit":
-			if sess != nil {
-				sess.commitLog(fmt.Sprintf("netcli-web: [%s] session by %s", sess.device, sess.username))
-				send(wsMsg{Type: "committed", Message: "Session committed to GitLab"})
+			if sess != nil && !committed {
+				committed = true
+				label := sess.commitMessage
+				if label == "" {
+					label = fmt.Sprintf("netlogger-web: [%s] session by %s", sess.device, sess.username)
+				}
+				sess.commitLog(label)
+				send(wsMsg{Type: "committed", Message: "Session committed"})
 			}
 			return
 		}
@@ -224,8 +258,9 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleLogsAPI returns log entries across a date range.
-// GET /api/logs?from=2026-04-20&to=2026-04-24  →  [{device, file, path, date}, ...]
-// GET /api/logs                                 →  ["2026-04-24", ...]  (available dates)
+//
+//	GET /api/logs                               → ["2026-04-24", ...]  (available dates)
+//	GET /api/logs?from=2026-04-20&to=2026-04-24 → [{device,file,path,date}, ...]
 func handleLogsAPI(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	from := r.URL.Query().Get("from")
@@ -243,11 +278,11 @@ func handleLogsAPI(w http.ResponseWriter, r *http.Request) {
 				dates = append(dates, e.Name())
 			}
 		}
+		sort.Strings(dates)
 		json.NewEncoder(w).Encode(dates)
 		return
 	}
 
-	// Normalise: if only one bound is given, treat it as a single-day query
 	if from == "" {
 		from = to
 	}
@@ -313,4 +348,31 @@ func handleLogFile(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.Write(content)
+}
+
+func startServer(addr string) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		io.WriteString(w, "OK")
+	})
+	mux.HandleFunc("/ws", handleWS)
+	mux.HandleFunc("/api/logs/file", handleLogFile)
+	mux.HandleFunc("/api/logs", handleLogsAPI)
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
+		http.ServeFile(w, r, "static/index.html")
+	})
+
+	handler := basicAuth(mux)
+
+	log.Printf("NetLogger listening on http://localhost%s", addr)
+	if os.Getenv("NETLOGGER_PASSWORD") != "" {
+		log.Println("HTTP Basic Auth enabled (NETLOGGER_PASSWORD is set)")
+	}
+	log.Fatal(http.ListenAndServe(addr, handler))
 }

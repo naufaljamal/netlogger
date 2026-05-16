@@ -10,166 +10,243 @@
 <style>
 /* ── Theme variables ── */
 :root {
-  --bg:        #1a1a1a;
-  --bg2:       #111111;
-  --bg3:       #222222;
-  --bg4:       #161616;
-  --border:    #2a2a2a;
-  --border2:   #1e1e1e;
-  --text:      #cccccc;
-  --text-dim:  #555555;
-  --text-mid:  #888888;
-  --accent:    #76b900;
-  --accent-hov:#8fd400;
-  --accent-dim:#3a5c00;
-  --danger:    #c0392b;
-  --success:   #76b900;
-  --input-bg:  #0f0f0f;
-  --term-bg:   #1a1a1a;
-  --term-fg:   #d4d4d4;
-  --term-sel:  #264f78;
+  --bg:         #1a1a1a;
+  --bg2:        #111111;
+  --bg3:        #222222;
+  --bg4:        #161616;
+  --border:     #2a2a2a;
+  --border2:    #1e1e1e;
+  --text:       #cccccc;
+  --text-dim:   #555555;
+  --text-mid:   #888888;
+  --accent:     #76b900;
+  --accent-hov: #8fd400;
+  --accent-dim: #2a3f00;
+  --danger:     #c0392b;
+  --warn:       #e67e22;
+  --success:    #76b900;
+  --input-bg:   #0f0f0f;
+  --term-bg:    #1a1a1a;
+  --term-fg:    #d4d4d4;
+  --term-sel:   #264f78;
+  --card-bg:    #1e1e1e;
 }
 body.light {
-  --bg:        #f2f2f2;
-  --bg2:       #e4e4e4;
-  --bg3:       #ffffff;
-  --bg4:       #f8f8f8;
-  --border:    #cccccc;
-  --border2:   #e8e8e8;
-  --text:      #1a1a1a;
-  --text-dim:  #888888;
-  --text-mid:  #555555;
-  --accent:    #5a8f00;
-  --accent-hov:#76b900;
-  --accent-dim:#d4edaa;
-  --danger:    #c0392b;
-  --success:   #5a8f00;
-  --input-bg:  #ffffff;
-  --term-bg:   #ffffff;
-  --term-fg:   #1a1a1a;
-  --term-sel:  #b3d4ff;
+  --bg:         #f2f2f2;
+  --bg2:        #e4e4e4;
+  --bg3:        #ffffff;
+  --bg4:        #f8f8f8;
+  --border:     #cccccc;
+  --border2:    #e8e8e8;
+  --text:       #1a1a1a;
+  --text-dim:   #888888;
+  --text-mid:   #555555;
+  --accent:     #5a8f00;
+  --accent-hov: #76b900;
+  --accent-dim: #d4edaa;
+  --danger:     #c0392b;
+  --warn:       #e67e22;
+  --success:    #5a8f00;
+  --input-bg:   #ffffff;
+  --term-bg:    #ffffff;
+  --term-fg:    #1a1a1a;
+  --term-sel:   #b3d4ff;
+  --card-bg:    #f0f0f0;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'SF Mono',Consolas,monospace;height:100vh;display:flex;flex-direction:column;overflow:hidden;transition:background .2s,color .2s}
 
 /* ── Brand bar ── */
-.brandbar{display:flex;align-items:center;gap:10px;padding:0 16px;height:50px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
-.brand-tool{font-size:18px;font-weight:700;color:var(--text);letter-spacing:.5px}
+.brandbar{display:flex;align-items:center;gap:10px;padding:0 16px;height:48px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.brand-logo{font-size:17px;font-weight:700;color:var(--text);letter-spacing:.5px;user-select:none}
+.brand-logo span{color:var(--accent)}
 .brand-spacer{flex:1}
-.theme-btn{background:transparent;border:1px solid var(--border);color:var(--text-mid);border-radius:5px;padding:5px 12px;cursor:pointer;font-size:13px;font-family:inherit;transition:all .15s}
+.theme-btn{background:transparent;border:1px solid var(--border);color:var(--text-mid);border-radius:5px;padding:5px 12px;cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s}
 .theme-btn:hover{border-color:var(--accent);color:var(--text)}
 
 /* ── Tab bar ── */
-.tabbar{display:flex;align-items:stretch;background:var(--bg2);border-bottom:2px solid var(--border);height:36px;padding:0 8px;gap:2px;flex-shrink:0;overflow-x:auto;overflow-y:hidden}
+.tabbar{display:flex;align-items:stretch;background:var(--bg2);border-bottom:2px solid var(--border);height:36px;padding:0 6px;gap:0;flex-shrink:0;overflow-x:auto;overflow-y:hidden}
 .tabbar::-webkit-scrollbar{height:3px}
 .tabbar::-webkit-scrollbar-thumb{background:var(--border)}
-.tab{display:flex;align-items:center;gap:8px;padding:0 14px;cursor:pointer;font-size:13px;color:var(--text-dim);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;flex-shrink:0;user-select:none;transition:color .15s}
+.tab{display:flex;align-items:center;gap:7px;padding:0 14px;cursor:pointer;font-size:13px;color:var(--text-dim);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;flex-shrink:0;user-select:none;transition:color .15s}
 .tab:hover{color:var(--text);background:var(--bg)}
 .tab.active{color:var(--text);border-bottom-color:var(--accent)}
 .tab .dot{width:7px;height:7px;border-radius:50%;background:var(--success);flex-shrink:0}
 .tab .dot.off{background:var(--text-dim)}
-.tab .x{opacity:0;font-size:11px;color:var(--text-dim);padding:2px 4px;border-radius:3px;transition:opacity .1s}
+.tab .x{opacity:0;font-size:10px;color:var(--text-dim);padding:2px 4px;border-radius:3px;transition:opacity .1s;line-height:1}
 .tab:hover .x{opacity:1}
 .tab .x:hover{background:var(--border);color:var(--text)}
 .tab-action{display:flex;align-items:center;padding:0 14px;cursor:pointer;font-size:13px;color:var(--text-dim);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;flex-shrink:0;transition:color .15s}
 .tab-action:hover{color:var(--text);background:var(--bg)}
 .tab-action.active{color:var(--accent);border-bottom-color:var(--accent)}
-.tabbar-spacer{flex:1}
-.tab-new{display:flex;align-items:center;padding:0 14px;cursor:pointer;font-size:13px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;transition:color .15s}
-.tab-new:hover{color:var(--accent)}
+.tabbar-spacer{flex:1;min-width:8px}
+.tab-btn{display:flex;align-items:center;padding:0 12px;cursor:pointer;font-size:12px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;transition:color .15s;border-bottom:2px solid transparent;margin-bottom:-2px;gap:4px}
+.tab-btn:hover{color:var(--accent)}
+.tab-btn.sc-btn{border-left:1px solid var(--border2)}
 
 /* ── Content ── */
-.content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative}
 
 /* ── Connect form ── */
-.form-wrap{display:flex;align-items:center;justify-content:center;flex:1}
-.connect-form{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:36px 44px;width:360px}
-.connect-form h2{color:var(--text);font-size:18px;margin-bottom:24px;font-weight:600}
-.field{margin-bottom:16px}
-.field label{display:block;color:var(--text-mid);font-size:12px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.form-wrap{display:flex;align-items:center;justify-content:center;flex:1;overflow-y:auto}
+.connect-form{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:32px 40px;width:360px;margin:16px}
+.connect-form h2{color:var(--text);font-size:17px;margin-bottom:22px;font-weight:600}
+.field{margin-bottom:14px}
+.field label{display:block;color:var(--text-mid);font-size:11px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
 .field input{width:100%;padding:9px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color .15s}
 .field input:focus{border-color:var(--accent)}
-.btn-connect{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:8px;transition:background .15s}
-.btn-connect:hover{background:var(--accent-hov)}
-.btn-connect:disabled{background:var(--border);color:var(--text-dim);cursor:default}
+.btn-primary{width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:6px;transition:background .15s}
+.btn-primary:hover{background:var(--accent-hov)}
+.btn-primary:disabled{background:var(--border);color:var(--text-dim);cursor:default}
 .form-error{color:#f66;font-size:12px;margin-top:10px;display:none}
 
-/* ── Terminal ── */
+/* ── Terminal pane ── */
 .terminal-pane{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .xterm-wrap{flex:1;padding:6px 8px;overflow:hidden;background:var(--term-bg)}
-.term-footer{display:flex;align-items:center;gap:12px;padding:7px 14px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0}
+.term-footer{display:flex;align-items:center;gap:10px;padding:6px 14px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0}
 .conn-dot{width:7px;height:7px;border-radius:50%;background:var(--success);flex-shrink:0}
 .conn-dot.off{background:var(--text-dim)}
-.conn-label{flex:1;font-size:13px;color:var(--text-mid)}
-.btn-exit{padding:5px 18px;border:1px solid var(--danger);background:transparent;color:var(--danger);border-radius:4px;cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s}
+.conn-label{flex:1;font-size:12px;color:var(--text-mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn-footer{padding:4px 14px;border-radius:4px;cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s}
+.btn-exit{border:1px solid var(--danger);background:transparent;color:var(--danger)}
 .btn-exit:hover{background:var(--danger);color:#fff}
+.btn-reconnect{border:1px solid var(--warn);background:transparent;color:var(--warn);display:none}
+.btn-reconnect:hover{background:var(--warn);color:#fff}
 
 /* ── Logs panel ── */
 .logs-layout{flex:1;display:flex;overflow:hidden}
 .logs-sidebar{width:300px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-.logs-search{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+.logs-search{padding:10px 12px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:7px}
 .date-row{display:flex;align-items:center;gap:8px;font-size:12px}
 .date-row label{color:var(--text-mid);width:28px;flex-shrink:0}
-.date-row input[type=date]{flex:1;padding:6px 8px;background:var(--input-bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;font-family:inherit;outline:none}
+.date-row input[type=date]{flex:1;padding:5px 8px;background:var(--input-bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;font-family:inherit;outline:none}
 .date-row input[type=date]:focus{border-color:var(--accent)}
-.btn-search{padding:7px;background:var(--accent);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;width:100%;font-family:inherit;transition:background .15s}
+.btn-search{padding:6px;background:var(--accent);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;width:100%;font-family:inherit;transition:background .15s}
 .btn-search:hover{background:var(--accent-hov)}
 .logs-list{flex:1;overflow-y:auto}
-.logs-list::-webkit-scrollbar{width:5px}
+.logs-list::-webkit-scrollbar{width:4px}
 .logs-list::-webkit-scrollbar-thumb{background:var(--border)}
-.date-group-header{padding:7px 14px;font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;background:var(--bg2);border-bottom:1px solid var(--border2);position:sticky;top:0;z-index:1}
-.device-header{padding:6px 14px 6px 20px;font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border2)}
-.log-entry{padding:8px 14px 8px 28px;font-size:13px;color:var(--text-dim);cursor:pointer;border-bottom:1px solid var(--border2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .1s}
+.date-group-header{padding:6px 12px;font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;background:var(--bg2);border-bottom:1px solid var(--border2);position:sticky;top:0;z-index:1}
+.device-header{padding:5px 12px 5px 18px;font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border2)}
+.log-entry{padding:7px 12px 7px 26px;font-size:12px;color:var(--text-dim);cursor:pointer;border-bottom:1px solid var(--border2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .1s}
 .log-entry:hover{background:var(--bg3);color:var(--text)}
-.log-entry.selected{background:var(--accent-dim);color:var(--accent);border-left:2px solid var(--accent);padding-left:26px}
+.log-entry.selected{background:var(--accent-dim);color:var(--accent);border-left:2px solid var(--accent);padding-left:24px}
 .logs-viewer{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.viewer-header{padding:10px 16px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text-mid);flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.viewer-body{flex:1;overflow-y:auto;padding:16px;font-size:13px;line-height:1.7;white-space:pre-wrap;color:var(--text)}
-.viewer-body::-webkit-scrollbar{width:5px}
+.viewer-header{padding:9px 14px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text-mid);flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.viewer-body{flex:1;overflow-y:auto;padding:14px 16px;font-size:12px;line-height:1.75;white-space:pre-wrap;color:var(--text)}
+.viewer-body::-webkit-scrollbar{width:4px}
 .viewer-body::-webkit-scrollbar-thumb{background:var(--border)}
-.empty-state{display:flex;align-items:center;justify-content:center;flex:1;color:var(--text-dim);font-size:13px}
+.empty-state{display:flex;align-items:center;justify-content:center;flex:1;color:var(--text-dim);font-size:13px;text-align:center;padding:20px}
+
+/* ── My Devices panel ── */
+.devices-panel{flex:1;overflow-y:auto;padding:20px}
+.devices-header{font-size:13px;color:var(--text-mid);margin-bottom:16px}
+.device-grid{display:flex;flex-wrap:wrap;gap:12px}
+.device-card{background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;width:240px;display:flex;flex-direction:column;gap:6px;transition:border-color .15s}
+.device-card:hover{border-color:var(--accent)}
+.dc-name{font-size:14px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dc-user{font-size:11px;color:var(--text-mid)}
+.dc-meta{font-size:11px;color:var(--text-dim)}
+.dc-actions{margin-top:4px}
+.btn-sm{padding:4px 12px;border-radius:4px;cursor:pointer;font-size:11px;font-family:inherit;transition:all .15s;border:1px solid var(--accent);background:transparent;color:var(--accent)}
+.btn-sm:hover{background:var(--accent);color:#fff}
+
+/* ── Shortcuts drawer ── */
+.sc-drawer{position:fixed;top:0;right:0;bottom:0;width:360px;background:var(--bg3);border-left:1px solid var(--border);display:flex;flex-direction:column;z-index:200;transform:translateX(100%);transition:transform .2s ease}
+.sc-drawer.open{transform:translateX(0)}
+.sc-drawer-header{display:flex;align-items:center;padding:0 16px;height:48px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sc-drawer-title{flex:1;font-size:14px;font-weight:600;color:var(--text)}
+.sc-close-btn{background:transparent;border:none;color:var(--text-mid);cursor:pointer;font-size:18px;padding:4px 8px;border-radius:4px;transition:color .15s}
+.sc-close-btn:hover{color:var(--text)}
+.sc-list{flex:1;overflow-y:auto;padding:8px 0}
+.sc-list::-webkit-scrollbar{width:4px}
+.sc-list::-webkit-scrollbar-thumb{background:var(--border)}
+.sc-item{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--border2);cursor:pointer;transition:background .1s}
+.sc-item:hover{background:var(--bg2)}
+.sc-item-info{flex:1;min-width:0}
+.sc-item-name{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-item-preview{font-size:11px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.sc-badge{font-size:10px;padding:2px 6px;border-radius:10px;background:var(--bg2);color:var(--text-mid);border:1px solid var(--border);white-space:nowrap;flex-shrink:0}
+.sc-key-badge{font-size:10px;padding:2px 7px;border-radius:4px;background:var(--bg4);color:var(--accent);border:1px solid var(--accent-dim);white-space:nowrap;flex-shrink:0;font-weight:600}
+.sc-del{background:transparent;border:none;color:var(--text-dim);cursor:pointer;padding:4px 6px;border-radius:3px;font-size:14px;transition:color .15s;flex-shrink:0}
+.sc-del:hover{color:var(--danger)}
+.sc-footer{padding:12px 14px;border-top:1px solid var(--border);flex-shrink:0}
+.btn-add-sc{width:100%;padding:8px;background:var(--accent);color:#fff;border:none;border-radius:5px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s}
+.btn-add-sc:hover{background:var(--accent-hov)}
+.sc-add-form{padding:12px 14px;border-top:1px solid var(--border);display:none;flex-direction:column;gap:8px;flex-shrink:0}
+.sc-add-form.visible{display:flex}
+.sc-add-form .field{margin-bottom:0}
+.sc-add-form .field input,.sc-add-form .field textarea{width:100%;padding:7px 10px;background:var(--input-bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color .15s;resize:vertical}
+.sc-add-form .field input:focus,.sc-add-form .field textarea:focus{border-color:var(--accent)}
+.sc-add-form .field textarea{min-height:64px;line-height:1.5}
+.sc-form-row{display:flex;gap:8px}
+.sc-form-row .btn-primary{flex:1;margin-top:0;padding:7px}
+.btn-cancel{padding:7px 14px;background:transparent;border:1px solid var(--border);color:var(--text-mid);border-radius:5px;font-size:13px;font-family:inherit;cursor:pointer;transition:all .15s}
+.btn-cancel:hover{border-color:var(--text-mid);color:var(--text)}
+.key-hint{font-size:10px;color:var(--text-dim);margin-top:2px}
 </style>
 </head>
 <body>
 
 <!-- Brand bar -->
 <div class="brandbar">
-  <span class="brand-tool">NetLogger</span>
+  <span class="brand-logo">Net<span>Logger</span></span>
   <div class="brand-spacer"></div>
-  <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
+  <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">Dark</button>
 </div>
 
 <!-- Tab bar -->
 <div class="tabbar" id="tabbar">
   <div class="tab-action active" id="tab-logs-btn" onclick="activateLogs()">Logs</div>
+  <div class="tab-action" id="tab-devices-btn" onclick="activateDevices()">My Devices</div>
   <div class="tabbar-spacer"></div>
-  <div class="tab-new" onclick="newTab()">＋ New Session</div>
+  <div class="tab-btn sc-btn" onclick="toggleShortcuts()">&#8984; Shortcuts</div>
+  <div class="tab-btn" onclick="newTab()">&#65291; New Session</div>
 </div>
 
 <div class="content" id="content"></div>
 
+<!-- Shortcuts drawer -->
+<div class="sc-drawer" id="sc-drawer">
+  <div class="sc-drawer-header">
+    <span class="sc-drawer-title">Command Shortcuts</span>
+    <button class="sc-close-btn" onclick="toggleShortcuts()">&#x2715;</button>
+  </div>
+  <div class="sc-list" id="sc-list"></div>
+  <div class="sc-add-form" id="sc-add-form">
+    <div class="field">
+      <label>Name</label>
+      <input id="sc-name" type="text" placeholder="e.g. Show BGP Summary" autocomplete="off"/>
+    </div>
+    <div class="field">
+      <label>Command(s) — one per line, sent 400ms apart</label>
+      <textarea id="sc-cmd" placeholder="show ip bgp summary"></textarea>
+    </div>
+    <div class="field">
+      <label>Keyboard shortcut (optional)</label>
+      <input id="sc-key" type="text" placeholder="Click here, then press keys" readonly autocomplete="off"/>
+      <div class="key-hint">Click the field and press your desired key combination. Click again to clear.</div>
+    </div>
+    <div class="sc-form-row">
+      <button class="btn-primary" onclick="saveNewShortcut()">Save</button>
+      <button class="btn-cancel" onclick="cancelAddShortcut()">Cancel</button>
+    </div>
+  </div>
+  <div class="sc-footer" id="sc-footer">
+    <button class="btn-add-sc" onclick="showAddShortcutForm()">+ Add Shortcut</button>
+  </div>
+</div>
+
 <script>
-// ── Theme ─────────────────────────────────────────────────────────────────────
-const DARK_THEME  = { background:'#1a1a1a', foreground:'#d4d4d4', cursor:'#ffffff', cursorAccent:'#1a1a1a', selectionBackground:'#264f78' };
-const LIGHT_THEME = { background:'#ffffff', foreground:'#1a1a1a', cursor:'#333333', cursorAccent:'#ffffff', selectionBackground:'#b3d4ff' };
+'use strict';
 
-let isDark = localStorage.getItem('netlogger-theme') !== 'light';
-
-function applyTheme() {
-  document.body.classList.toggle('light', !isDark);
-  const btn = document.getElementById('theme-btn');
-  if (btn) btn.textContent = isDark ? '🌙 Dark' : '☀️ Light';
-  tabs.forEach(t => { if (t.term) t.term.options.theme = isDark ? DARK_THEME : LIGHT_THEME; });
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
 }
-
-function toggleTheme() {
-  isDark = !isDark;
-  localStorage.setItem('netlogger-theme', isDark ? 'dark' : 'light');
-  applyTheme();
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function b64encode(str) {
   const bytes = new TextEncoder().encode(str);
   let bin = '';
@@ -183,17 +260,50 @@ function b64decode(b64) {
   return bytes;
 }
 
+// ── Theme ─────────────────────────────────────────────────────────────────────
+const DARK_THEME  = { background:'#1a1a1a', foreground:'#d4d4d4', cursor:'#ffffff', cursorAccent:'#1a1a1a', selectionBackground:'#264f78' };
+const LIGHT_THEME = { background:'#ffffff', foreground:'#1a1a1a', cursor:'#333333', cursorAccent:'#ffffff', selectionBackground:'#b3d4ff' };
+
+let isDark = localStorage.getItem('netlogger-theme') !== 'light';
+
+function applyTheme() {
+  document.body.classList.toggle('light', !isDark);
+  const btn = document.getElementById('theme-btn');
+  if (btn) btn.textContent = isDark ? 'Dark' : 'Light';
+  tabs.forEach(t => { if (t.term) t.term.options.theme = isDark ? DARK_THEME : LIGHT_THEME; });
+}
+function toggleTheme() {
+  isDark = !isDark;
+  localStorage.setItem('netlogger-theme', isDark ? 'dark' : 'light');
+  applyTheme();
+}
+
 // ── State ─────────────────────────────────────────────────────────────────────
-// NOTE: tabs must be declared before applyTheme() is called
-let tabs       = [];
-let activeId   = null;
-let logsActive = true;
+let tabs        = [];
+let activeId    = null;
+let logsActive  = true;
+let devsActive  = false;
 
 // ── Tab management ────────────────────────────────────────────────────────────
-function newTab() {
+// prefill: { device, sshUser }
+function newTab(prefill) {
   const id = 't' + Date.now();
-  tabs.push({ id, device:null, ws:null, term:null, fit:null, connected:false, outputQueue:[] });
+  tabs.push({
+    id,
+    device: null,
+    ws: null,
+    term: null,
+    fit: null,
+    connected: false,
+    outputQueue: [],
+    prefillDevice: prefill ? prefill.device  : '',
+    prefillUser:   prefill ? prefill.sshUser : '',
+    username: '',
+    password: '',
+    sessionName: '',
+  });
   logsActive = false;
+  devsActive = false;
   activeId = id;
   redrawTabBar();
   redrawContent();
@@ -201,6 +311,7 @@ function newTab() {
 
 function activateTab(id) {
   logsActive = false;
+  devsActive = false;
   activeId = id;
   redrawTabBar();
   redrawContent();
@@ -208,13 +319,22 @@ function activateTab(id) {
 
 function activateLogs() {
   logsActive = true;
+  devsActive = false;
+  activeId = null;
+  redrawTabBar();
+  redrawContent();
+}
+
+function activateDevices() {
+  logsActive = false;
+  devsActive = true;
   activeId = null;
   redrawTabBar();
   redrawContent();
 }
 
 function closeTab(id, e) {
-  e.stopPropagation();
+  if (e) e.stopPropagation();
   const idx = tabs.findIndex(t => t.id === id);
   if (idx === -1) return;
   const tab = tabs[idx];
@@ -223,8 +343,8 @@ function closeTab(id, e) {
   tabs.splice(idx, 1);
   if (activeId === id) {
     const next = tabs[Math.min(idx, tabs.length - 1)];
-    if (next) { activeId = next.id; logsActive = false; }
-    else { activeId = null; logsActive = true; }
+    if (next) { activeId = next.id; logsActive = false; devsActive = false; }
+    else { activeId = null; logsActive = true; devsActive = false; }
   }
   redrawTabBar();
   redrawContent();
@@ -233,134 +353,205 @@ function closeTab(id, e) {
 function redrawTabBar() {
   const bar = document.getElementById('tabbar');
   bar.querySelectorAll('.tab').forEach(el => el.remove());
-  document.getElementById('tab-logs-btn').className = 'tab-action' + (logsActive ? ' active' : '');
+  document.getElementById('tab-logs-btn').className    = 'tab-action' + (logsActive  ? ' active' : '');
+  document.getElementById('tab-devices-btn').className = 'tab-action' + (devsActive  ? ' active' : '');
 
   const spacer = bar.querySelector('.tabbar-spacer');
   tabs.forEach(tab => {
     const el = document.createElement('div');
-    el.className = 'tab' + (tab.id === activeId && !logsActive ? ' active' : '');
+    el.className = 'tab' + (tab.id === activeId && !logsActive && !devsActive ? ' active' : '');
     el.onclick = () => activateTab(tab.id);
     el.innerHTML =
-      `<span class="${tab.connected ? 'dot' : 'dot off'}" id="dot-${tab.id}"></span>` +
-      `<span>${tab.device || 'New Session'}</span>` +
-      `<span class="x" onclick="closeTab('${tab.id}',event)">✕</span>`;
+      `<span class="${tab.connected ? 'dot' : 'dot off'}"></span>` +
+      `<span>${escHtml(tab.device || 'New Session')}</span>` +
+      `<span class="x" onclick="closeTab('${tab.id}',event)">&#x2715;</span>`;
     bar.insertBefore(el, spacer);
   });
 }
 
-// ── Content ───────────────────────────────────────────────────────────────────
+// ── Content routing ───────────────────────────────────────────────────────────
 function redrawContent() {
   const c = document.getElementById('content');
   c.innerHTML = '';
-  if (logsActive) { renderLogs(c); return; }
+  if (logsActive)  { renderLogs(c);    return; }
+  if (devsActive)  { renderDevices(c); return; }
   const tab = tabs.find(t => t.id === activeId);
   if (!tab) {
-    c.innerHTML = '<div class="empty-state">Click "＋ New Session" to connect to a device.</div>';
+    c.innerHTML = '<div class="empty-state">Click "+ New Session" to connect to a device.</div>';
     return;
   }
-  if (!tab.connected && !tab.term) renderForm(c, tab);
-  else renderTerminal(c, tab);
+  if (!tab.term) renderForm(c, tab);
+  else           renderTerminal(c, tab);
 }
 
 // ── Connect form ──────────────────────────────────────────────────────────────
 function renderForm(c, tab) {
+  const hasPrefill = !!(tab.prefillDevice);
   c.innerHTML = `
     <div class="form-wrap">
       <div class="connect-form">
         <h2>Connect to Device</h2>
         <div class="field">
           <label>Device Hostname / IP</label>
-          <input id="f-dev" type="text" placeholder="spine01-dc7" autocomplete="off"/>
+          <input id="f-dev" type="text" value="${escHtml(tab.prefillDevice || '')}" placeholder="spine01-dc7" autocomplete="off"/>
         </div>
         <div class="field">
-          <label>Username</label>
-          <input id="f-usr" type="text" placeholder="ro" autocomplete="off"/>
+          <label>SSH Username</label>
+          <input id="f-usr" type="text" value="${escHtml(tab.prefillUser || '')}" placeholder="admin" autocomplete="off"/>
         </div>
         <div class="field">
           <label>Password</label>
-          <input id="f-pwd" type="password" placeholder="Leave blank for SSH key auth"/>
+          <input id="f-pwd" type="password" placeholder="Leave blank for key auth"/>
         </div>
-        <button class="btn-connect" id="btn-conn" onclick="doConnect('${tab.id}')">Connect</button>
+        <div class="field">
+          <label>Session Label (optional)</label>
+          <input id="f-sname" type="text" placeholder="e.g. investigating bgp flap" autocomplete="off"/>
+        </div>
+        <button class="btn-primary" id="btn-conn" onclick="doConnect('${tab.id}')">Connect</button>
         <div class="form-error" id="form-err"></div>
       </div>
     </div>`;
-  document.getElementById('f-dev').focus();
-  ['f-dev','f-usr','f-pwd'].forEach(fid =>
-    document.getElementById(fid).addEventListener('keydown', e => { if (e.key === 'Enter') doConnect(tab.id); }));
+
+  if (hasPrefill) {
+    document.getElementById('f-pwd').focus();
+  } else {
+    document.getElementById('f-dev').focus();
+  }
+
+  ['f-dev','f-usr','f-pwd','f-sname'].forEach(fid => {
+    const el = document.getElementById(fid);
+    if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') doConnect(tab.id); });
+  });
 }
 
 function doConnect(tabId) {
   const tab = tabs.find(t => t.id === tabId);
   if (!tab) return;
-  const device   = document.getElementById('f-dev').value.trim();
-  const username = document.getElementById('f-usr').value.trim();
-  const password = document.getElementById('f-pwd').value;
+  const device      = document.getElementById('f-dev').value.trim();
+  const username    = document.getElementById('f-usr').value.trim();
+  const password    = document.getElementById('f-pwd').value;
+  const sessionName = (document.getElementById('f-sname').value || '').trim();
   if (!device || !username) return;
 
-  tab.device = device;
-  document.getElementById('btn-conn').disabled = true;
+  tab.device      = device;
+  tab.username    = username;
+  tab.password    = password;
+  tab.sessionName = sessionName;
+
+  document.getElementById('btn-conn').disabled    = true;
   document.getElementById('btn-conn').textContent = 'Connecting…';
   redrawTabBar();
 
+  openWS(tab);
+}
+
+// ── WebSocket connection ──────────────────────────────────────────────────────
+function openWS(tab) {
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
   const ws = new WebSocket(`${proto}://${location.host}/ws`);
   tab.ws = ws;
 
-  ws.onopen = () => ws.send(JSON.stringify({ type:'connect', device, username, password }));
+  ws.onopen = () => {
+    ws.send(JSON.stringify({
+      type: 'connect',
+      device:      tab.device,
+      username:    tab.username,
+      password:    tab.password,
+      sessionName: tab.sessionName,
+    }));
+    saveDevice(tab.device, tab.username);
+  };
 
   ws.onmessage = e => {
-    const msg = JSON.parse(e.data);
+    let msg;
+    try { msg = JSON.parse(e.data); } catch { return; }
     switch (msg.type) {
       case 'connected':
         tab.connected = true;
         redrawTabBar();
-        redrawContent();
-        if (tab.term && tab.outputQueue.length) {
-          tab.outputQueue.forEach(d => tab.term.write(b64decode(d)));
-          tab.outputQueue = [];
+        // If terminal already rendered (reconnect), flush queue and update footer.
+        if (tab.term) {
+          if (tab.outputQueue.length) {
+            tab.outputQueue.forEach(d => tab.term.write(b64decode(d)));
+            tab.outputQueue = [];
+          }
+          updateFooter(tab.id, true);
+        } else {
+          redrawContent();
+          if (tab.outputQueue.length) {
+            tab.outputQueue.forEach(d => tab.term && tab.term.write(b64decode(d)));
+            tab.outputQueue = [];
+          }
         }
         break;
+
       case 'output':
         if (tab.term) tab.term.write(b64decode(msg.data));
         else tab.outputQueue.push(msg.data);
         break;
+
       case 'disconnected':
         tab.connected = false;
         redrawTabBar();
-        if (tab.term) tab.term.write('\r\n\x1b[33m[Session closed]\x1b[0m\r\n');
-        updateStatus(tabId, false);
+        if (tab.term) tab.term.write('\r\n\x1b[33m[Connection closed]\x1b[0m\r\n');
+        updateFooter(tab.id, false);
         break;
+
       case 'committed':
-        if (tab.term) tab.term.write(`\r\n\x1b[32m✔ ${msg.message}\x1b[0m\r\n`);
+        if (tab.term) tab.term.write('\r\n\x1b[32m✔ Session committed\x1b[0m\r\n');
         break;
+
       case 'error':
         tab.connected = false;
         tab.ws = null;
-        tab.term = null;
-        redrawTabBar();
-        redrawContent();
-        const errEl = document.getElementById('form-err');
-        if (errEl) { errEl.style.display = 'block'; errEl.textContent = msg.message; }
-        const btn = document.getElementById('btn-conn');
-        if (btn) { btn.disabled = false; btn.textContent = 'Connect'; }
+        // If a terminal is open, print there; otherwise show form error.
+        if (tab.term) {
+          tab.term.write(`\r\n\x1b[31m[Error: ${msg.message}]\x1b[0m\r\n`);
+          updateFooter(tab.id, false);
+        } else {
+          tab.term = null;
+          redrawTabBar();
+          redrawContent();
+          const errEl = document.getElementById('form-err');
+          if (errEl) { errEl.style.display = 'block'; errEl.textContent = msg.message; }
+          const btn = document.getElementById('btn-conn');
+          if (btn) { btn.disabled = false; btn.textContent = 'Connect'; }
+        }
         break;
     }
   };
 
-  ws.onclose = () => { tab.connected = false; redrawTabBar(); updateStatus(tabId, false); };
+  ws.onclose = () => {
+    tab.connected = false;
+    redrawTabBar();
+    updateFooter(tab.id, false);
+  };
+}
+
+function doReconnect(tabId) {
+  const tab = tabs.find(t => t.id === tabId);
+  if (!tab) return;
+  if (tab.ws) { try { tab.ws.close(); } catch(_) {} tab.ws = null; }
+  if (tab.term) tab.term.write('\r\n\x1b[33m[Reconnecting…]\x1b[0m\r\n');
+  updateFooter(tabId, false);
+  openWS(tab);
 }
 
 // ── Terminal ──────────────────────────────────────────────────────────────────
 function renderTerminal(c, tab) {
   c.innerHTML = `
-    <div class="terminal-pane">
+    <div class="terminal-pane" id="tpane-${tab.id}">
       <div class="xterm-wrap" id="xw-${tab.id}"></div>
-      <div class="term-footer">
-        <div class="conn-dot ${tab.connected ? '' : 'off'}" id="dot2-${tab.id}"></div>
-        <span class="conn-label" id="lbl-${tab.id}">${tab.connected ? 'Connected' : 'Disconnected'} — ${tab.device}</span>
-        <button class="btn-exit" onclick="doExit('${tab.id}')">Exit &amp; Commit</button>
+      <div class="term-footer" id="footer-${tab.id}">
+        <div class="conn-dot ${tab.connected ? '' : 'off'}" id="cdot-${tab.id}"></div>
+        <span class="conn-label" id="clbl-${tab.id}">${tab.connected ? 'Connected' : 'Disconnected'} &mdash; ${escHtml(tab.device)}</span>
+        <button class="btn-footer btn-reconnect" id="btn-recon-${tab.id}" onclick="doReconnect('${tab.id}')">Reconnect</button>
+        <button class="btn-footer btn-exit" id="btn-exit-${tab.id}" onclick="doExit('${tab.id}')">Exit &amp; Commit</button>
       </div>
     </div>`;
+
+  // Update reconnect/exit visibility based on current connection state.
+  updateFooter(tab.id, tab.connected);
 
   if (tab.term) {
     tab.term.open(document.getElementById(`xw-${tab.id}`));
@@ -389,6 +580,18 @@ function renderTerminal(c, tab) {
     tab.outputQueue = [];
   }
 
+  // Keyboard shortcut interception (before xterm processes the key).
+  term.attachCustomKeyEventHandler(ev => {
+    if (ev.type !== 'keydown') return true;
+    const key = buildKeyString(ev);
+    if (!key) return true;
+    const idx = shortcuts.findIndex(s => s.key === key);
+    if (idx === -1) return true;
+    ev.preventDefault();
+    sendShortcut(idx);
+    return false;
+  });
+
   term.onData(data => {
     if (tab.ws && tab.ws.readyState === WebSocket.OPEN)
       tab.ws.send(JSON.stringify({ type:'input', data: b64encode(data) }));
@@ -399,17 +602,22 @@ function renderTerminal(c, tab) {
       tab.ws.send(JSON.stringify({ type:'resize', cols, rows }));
   });
 
-  new ResizeObserver(() => fit.fit()).observe(document.getElementById(`xw-${tab.id}`));
+  new ResizeObserver(() => { if (tab.fit) tab.fit.fit(); })
+    .observe(document.getElementById(`xw-${tab.id}`));
+
   term.focus();
 }
 
-function updateStatus(tabId, connected) {
-  const d1  = document.getElementById(`dot-${tabId}`);
-  const d2  = document.getElementById(`dot2-${tabId}`);
-  const lbl = document.getElementById(`lbl-${tabId}`);
-  const tab = tabs.find(t => t.id === tabId);
-  [d1, d2].forEach(d => { if (d) d.className = 'conn-dot' + (connected ? '' : ' off'); });
-  if (lbl && tab) lbl.textContent = `${connected ? 'Connected' : 'Disconnected'} — ${tab.device}`;
+function updateFooter(tabId, connected) {
+  const cdot  = document.getElementById(`cdot-${tabId}`);
+  const clbl  = document.getElementById(`clbl-${tabId}`);
+  const recon = document.getElementById(`btn-recon-${tabId}`);
+  const exit  = document.getElementById(`btn-exit-${tabId}`);
+  const tab   = tabs.find(t => t.id === tabId);
+  if (cdot) { cdot.className = 'conn-dot' + (connected ? '' : ' off'); }
+  if (clbl && tab) clbl.textContent = (connected ? 'Connected' : 'Disconnected') + ' — ' + (tab.device || '');
+  if (recon) recon.style.display = connected ? 'none'  : '';
+  if (exit)  exit.style.display  = connected ? ''      : 'none';
 }
 
 function doExit(tabId) {
@@ -438,7 +646,7 @@ function renderLogs(c) {
           <button class="btn-search" onclick="searchLogs()">Search</button>
         </div>
         <div class="logs-list" id="logs-list">
-          <div class="empty-state" style="height:140px">Set a date range and click Search.</div>
+          <div class="empty-state" style="height:100px">Set a date range and click Search.</div>
         </div>
       </div>
       <div class="logs-viewer" id="logs-viewer">
@@ -446,8 +654,10 @@ function renderLogs(c) {
       </div>
     </div>`;
 
-  ['log-from', 'log-to'].forEach(id =>
-    document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') searchLogs(); }));
+  ['log-from','log-to'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') searchLogs(); });
+  });
 }
 
 async function searchLogs() {
@@ -456,22 +666,18 @@ async function searchLogs() {
   if (!from || !to) return;
   if (from > to) {
     document.getElementById('logs-list').innerHTML =
-      '<div class="empty-state" style="height:80px;color:#f66">"From" must be on or before "To".</div>';
+      '<div class="empty-state" style="color:#f66">"From" must be on or before "To".</div>';
     return;
   }
-
   const list = document.getElementById('logs-list');
-  list.innerHTML = '<div class="empty-state" style="height:120px">Loading…</div>';
-
+  list.innerHTML = '<div class="empty-state">Loading…</div>';
   try {
     const res  = await fetch(`/api/logs?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
     const data = await res.json();
-
     if (!data || data.length === 0) {
-      list.innerHTML = '<div class="empty-state" style="height:120px">No logs found for this range.</div>';
+      list.innerHTML = '<div class="empty-state">No logs found for this range.</div>';
       return;
     }
-
     // Group: date → device → [files]
     const byDate = {};
     data.forEach(f => {
@@ -479,20 +685,17 @@ async function searchLogs() {
       if (!byDate[f.date][f.device]) byDate[f.date][f.device] = [];
       byDate[f.date][f.device].push(f);
     });
-
     list.innerHTML = '';
     Object.keys(byDate).sort().reverse().forEach(date => {
       const dh = document.createElement('div');
       dh.className = 'date-group-header';
       dh.textContent = date;
       list.appendChild(dh);
-
       Object.entries(byDate[date]).forEach(([dev, files]) => {
         const dvh = document.createElement('div');
         dvh.className = 'device-header';
         dvh.textContent = dev;
         list.appendChild(dvh);
-
         files.forEach(f => {
           const el = document.createElement('div');
           el.className = 'log-entry' + (f.path === selectedLogPath ? ' selected' : '');
@@ -503,8 +706,8 @@ async function searchLogs() {
         });
       });
     });
-  } catch (err) {
-    list.innerHTML = `<div class="empty-state" style="height:120px;color:#f66">Error: ${err.message}</div>`;
+  } catch(err) {
+    list.innerHTML = `<div class="empty-state" style="color:#f66">Error: ${escHtml(err.message)}</div>`;
   }
 }
 
@@ -512,27 +715,226 @@ async function openLog(path, filename, el) {
   selectedLogPath = path;
   document.querySelectorAll('.log-entry').forEach(e => e.classList.remove('selected'));
   el.classList.add('selected');
-
   const viewer = document.getElementById('logs-viewer');
   viewer.innerHTML =
-    `<div class="viewer-header">${filename}</div>` +
+    `<div class="viewer-header">${escHtml(filename)}</div>` +
     `<div class="viewer-body" id="vbody">Loading…</div>`;
-
   try {
     const res = await fetch(`/api/logs/file?path=${encodeURIComponent(path)}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     document.getElementById('vbody').textContent = await res.text();
-  } catch (err) {
+  } catch(err) {
     document.getElementById('vbody').textContent = `Error: ${err.message}`;
   }
 }
 
+// ── My Devices panel ──────────────────────────────────────────────────────────
+function loadDevices() {
+  try { return JSON.parse(localStorage.getItem('netlogger-devices') || '[]'); }
+  catch { return []; }
+}
+function saveDevice(device, sshUser) {
+  let devs = loadDevices();
+  const now = new Date().toISOString();
+  const idx = devs.findIndex(d => d.device === device && d.sshUser === sshUser);
+  if (idx >= 0) {
+    devs[idx].lastSeen = now;
+    devs[idx].count = (devs[idx].count || 0) + 1;
+  } else {
+    devs.unshift({ device, sshUser, lastSeen: now, count: 1 });
+  }
+  devs.sort((a, b) => (b.lastSeen > a.lastSeen ? 1 : -1));
+  if (devs.length > 50) devs = devs.slice(0, 50);
+  localStorage.setItem('netlogger-devices', JSON.stringify(devs));
+}
+function connectFromHistory(device, sshUser) {
+  newTab({ device, sshUser });
+}
+
+function renderDevices(c) {
+  const devs = loadDevices();
+  c.innerHTML = `<div class="devices-panel" id="devs-panel"></div>`;
+  const panel = document.getElementById('devs-panel');
+  if (!devs.length) {
+    panel.innerHTML = '<div class="empty-state" style="flex-direction:column;gap:8px"><div>No saved devices yet.</div><div style="color:var(--text-dim);font-size:12px">Devices are remembered automatically after each connection.</div></div>';
+    return;
+  }
+  panel.innerHTML = `<div class="devices-header">Recent devices (${devs.length})</div><div class="device-grid" id="dg"></div>`;
+  const grid = document.getElementById('dg');
+  devs.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'device-card';
+    const last = d.lastSeen ? new Date(d.lastSeen).toLocaleString() : '—';
+    card.innerHTML =
+      `<div class="dc-name">${escHtml(d.device)}</div>` +
+      `<div class="dc-user">User: ${escHtml(d.sshUser)}</div>` +
+      `<div class="dc-meta">Last: ${escHtml(last)} &middot; ${d.count || 1} session${d.count !== 1 ? 's' : ''}</div>` +
+      `<div class="dc-actions"><button class="btn-sm" onclick="connectFromHistory('${escHtml(d.device)}','${escHtml(d.sshUser)}')">Connect</button></div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ── Shortcuts ─────────────────────────────────────────────────────────────────
+let shortcuts = [];
+
+function loadShortcuts() {
+  try { shortcuts = JSON.parse(localStorage.getItem('netlogger-shortcuts') || '[]'); }
+  catch { shortcuts = []; }
+  renderShortcuts();
+}
+function saveShortcuts() {
+  localStorage.setItem('netlogger-shortcuts', JSON.stringify(shortcuts));
+}
+
+function renderShortcuts() {
+  const list = document.getElementById('sc-list');
+  if (!list) return;
+  if (!shortcuts.length) {
+    list.innerHTML = '<div class="empty-state" style="height:80px;font-size:12px">No shortcuts yet. Add one below.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  shortcuts.forEach((sc, i) => {
+    const lines = (sc.cmd || '').split('\n').filter(l => l.trim());
+    const preview = lines[0] || '';
+    const multi   = lines.length > 1;
+    const item = document.createElement('div');
+    item.className = 'sc-item';
+    item.onclick = () => sendShortcutToActive(i);
+    item.innerHTML =
+      `<div class="sc-item-info">` +
+        `<div class="sc-item-name">${escHtml(sc.name)}</div>` +
+        `<div class="sc-item-preview">${escHtml(preview)}</div>` +
+      `</div>` +
+      (multi ? `<span class="sc-badge">${lines.length} cmds</span>` : '') +
+      (sc.key ? `<span class="sc-key-badge">${escHtml(formatKey(sc.key))}</span>` : '') +
+      `<button class="sc-del" title="Delete" onclick="deleteShortcut(${i},event)">&#x2715;</button>`;
+    list.appendChild(item);
+  });
+}
+
+// Send shortcut to whichever terminal tab is currently active.
+function sendShortcutToActive(i) {
+  const tab = tabs.find(t => t.id === activeId);
+  if (!tab || !tab.ws || tab.ws.readyState !== WebSocket.OPEN) return;
+  sendShortcut(i, tab);
+}
+
+function sendShortcut(i, tab) {
+  const sc = shortcuts[i];
+  if (!sc) return;
+  if (!tab) tab = tabs.find(t => t.id === activeId);
+  if (!tab || !tab.ws || tab.ws.readyState !== WebSocket.OPEN) return;
+  const lines = (sc.cmd || '').split('\n').filter(l => l.trim());
+  lines.forEach((line, idx) => {
+    setTimeout(() => {
+      if (tab.ws && tab.ws.readyState === WebSocket.OPEN)
+        tab.ws.send(JSON.stringify({ type:'input', data: b64encode(line + '\r') }));
+    }, idx * 400);
+  });
+}
+
+function deleteShortcut(i, e) {
+  if (e) e.stopPropagation();
+  shortcuts.splice(i, 1);
+  saveShortcuts();
+  renderShortcuts();
+}
+
+function showAddShortcutForm() {
+  const form   = document.getElementById('sc-add-form');
+  const footer = document.getElementById('sc-footer');
+  if (!form || !footer) return;
+  form.classList.add('visible');
+  footer.style.display = 'none';
+  document.getElementById('sc-name').focus();
+}
+
+function cancelAddShortcut() {
+  const form   = document.getElementById('sc-add-form');
+  const footer = document.getElementById('sc-footer');
+  if (!form || !footer) return;
+  form.classList.remove('visible');
+  footer.style.display = '';
+  document.getElementById('sc-name').value = '';
+  document.getElementById('sc-cmd').value  = '';
+  document.getElementById('sc-key').value  = '';
+}
+
+function saveNewShortcut() {
+  const name = document.getElementById('sc-name').value.trim();
+  const cmd  = document.getElementById('sc-cmd').value.trim();
+  const key  = document.getElementById('sc-key').value.trim();
+  if (!name || !cmd) return;
+  shortcuts.push({ name, cmd, key });
+  saveShortcuts();
+  cancelAddShortcut();
+  renderShortcuts();
+}
+
+// Key capture for shortcut binding.
+(function setupKeyCapture() {
+  document.addEventListener('DOMContentLoaded', () => {
+    const kf = document.getElementById('sc-key');
+    if (!kf) return;
+    let captured = false;
+    kf.addEventListener('click', () => {
+      if (captured) { kf.value = ''; captured = false; }
+    });
+    kf.addEventListener('keydown', e => {
+      e.preventDefault();
+      const k = buildKeyString(e);
+      if (k) { kf.value = k; captured = true; }
+    });
+  });
+})();
+
+// Build a canonical key string like "Ctrl+Shift+K" from a KeyboardEvent.
+function buildKeyString(e) {
+  const parts = [];
+  if (e.ctrlKey  || e.metaKey) parts.push('Ctrl');
+  if (e.altKey)                parts.push('Alt');
+  if (e.shiftKey)              parts.push('Shift');
+  const k = e.key;
+  // Ignore bare modifier presses.
+  if (['Control','Alt','Shift','Meta'].includes(k)) return '';
+  parts.push(k.length === 1 ? k.toUpperCase() : k);
+  return parts.join('+');
+}
+
+// Display key nicely (replace Meta with Cmd on mac-like strings).
+function formatKey(key) {
+  return key.replace('Meta+','Cmd+');
+}
+
+function toggleShortcuts() {
+  const drawer = document.getElementById('sc-drawer');
+  drawer.classList.toggle('open');
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
-// applyTheme() is called here, after `tabs` is declared above
 applyTheme();
+loadShortcuts();
 activateLogs();
 
 window.addEventListener('resize', () => tabs.forEach(t => { if (t.fit) t.fit.fit(); }));
+
+// Global keydown: route keyboard shortcut bindings to active terminal.
+document.addEventListener('keydown', e => {
+  // Only intercept when a terminal tab is active AND focus is not in an input.
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  const tab = tabs.find(t => t.id === activeId);
+  if (!tab || !tab.term) return;
+  // Don't double-handle — xterm's attachCustomKeyEventHandler covers the terminal focus case.
+  // This handles shortcuts fired when focus is on the page but outside xterm.
+  const key = buildKeyString(e);
+  if (!key) return;
+  const idx = shortcuts.findIndex(s => s.key === key);
+  if (idx === -1) return;
+  e.preventDefault();
+  sendShortcut(idx, tab);
+});
 </script>
 </body>
 </html>

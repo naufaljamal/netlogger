@@ -153,7 +153,6 @@ You will be prompted for your username, password, and a commit message.
 | `--serve` | Start the web UI server | — |
 | `--addr` | Web server listen address | `:8080` |
 | `--connect / -c` | Device hostname for CLI mode | — |
-| `--git_commit` | Trigger a test GitLab commit (requires `--connect`) | — |
 
 ---
 
