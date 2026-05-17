@@ -28,7 +28,7 @@ NetLogger is an open-source tool for network engineers to SSH into network devic
 
 ## Requirements
 
-- Go 1.22 or later (for building from source)
+- Go 1.24 or later (for building from source)
 - Docker (for containerised deployment)
 - A GitLab account with a personal access token that has `api` scope
 - A GitLab project to store logs in
