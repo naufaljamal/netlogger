@@ -79,6 +79,39 @@ func isQuitCmd(cmd string) bool {
 	return false
 }
 
+// configTriggers lists command prefixes that indicate the engineer is about to
+// make configuration changes. Capture starts on the first match.
+var configTriggers = []string{
+	// Cisco / Arista — enter global config mode
+	"configure terminal",
+	"configure",
+	"conf terminal",
+	"conf t",
+	// Cumulus — NVUE
+	"nv set",
+	"nv unset",
+	"nv add",
+	"nv delete",
+	// Cumulus — legacy NCLU
+	"net add",
+	"net del",
+	"net commit",
+	// Privileged shell (any platform)
+	"sudo -s",
+	"sudo -i",
+	"sudo su",
+}
+
+func isConfigTrigger(cmd string) bool {
+	cmd = strings.TrimSpace(cmd)
+	for _, t := range configTriggers {
+		if cmd == t || strings.HasPrefix(cmd, t+" ") || strings.HasPrefix(cmd, t+"\t") {
+			return true
+		}
+	}
+	return false
+}
+
 // ── Session ───────────────────────────────────────────────────────────────────
 
 // Session holds all state for one device connection (CLI or web).
@@ -88,6 +121,7 @@ type Session struct {
 	commitMessage string
 	logFilePath   string
 
+	configMode        bool // true once a config trigger command is detected
 	gitlabFileCreated bool
 	rawBuf            bytes.Buffer
 	rawBufMu          sync.Mutex
@@ -123,6 +157,10 @@ func (s *Session) commitLog(msg string) {
 	s.rawBufMu.Lock()
 	raw := s.rawBuf.String()
 	s.rawBufMu.Unlock()
+
+	if raw == "" {
+		return // no config activity this session — nothing to store
+	}
 
 	f, err := os.Create(s.logFilePath)
 	if err != nil {
@@ -209,13 +247,14 @@ func (s *Session) uploadToGitlab(commitMsg string) {
 // ── CLI mode ──────────────────────────────────────────────────────────────────
 
 // stdinInterceptor forwards keystrokes to the PTY and fires callbacks on
-// recognised command patterns (write-mem variants, quit variants).
+// recognised command patterns (write-mem variants, quit variants, config triggers).
 type stdinInterceptor struct {
-	dst        io.Writer
-	buf        bytes.Buffer
-	inEsc      bool
-	onWriteMem func()
-	onQuit     func()
+	dst           io.Writer
+	buf           bytes.Buffer
+	inEsc         bool
+	onWriteMem    func()
+	onQuit        func()
+	onConfigEnter func()
 }
 
 func (si *stdinInterceptor) Write(p []byte) (int, error) {
@@ -234,6 +273,8 @@ func (si *stdinInterceptor) Write(p []byte) (int, error) {
 				go si.onWriteMem()
 			} else if isQuitCmd(cmd) && si.onQuit != nil {
 				go si.onQuit()
+			} else if isConfigTrigger(cmd) && si.onConfigEnter != nil {
+				go si.onConfigEnter()
 			}
 		case b == '\x7f' || b == '\x08':
 			str := si.buf.String()
@@ -287,6 +328,12 @@ func (s *Session) runCLI() {
 		onQuit: func() {
 			s.commitLog(fmt.Sprintf("netlogger: [%s] auto-commit (quit/exit)", s.device))
 		},
+		onConfigEnter: func() {
+			s.rawBufMu.Lock()
+			s.configMode = true
+			s.rawBufMu.Unlock()
+			log.Printf("config mode detected on %s — capture started", s.device)
+		},
 	}, os.Stdin)
 
 	go func() {
@@ -296,7 +343,9 @@ func (s *Session) runCLI() {
 			if n > 0 {
 				os.Stdout.Write(buf[:n])
 				s.rawBufMu.Lock()
-				s.rawBuf.Write(buf[:n])
+				if s.configMode {
+					s.rawBuf.Write(buf[:n])
+				}
 				s.rawBufMu.Unlock()
 			}
 			if rdErr != nil {

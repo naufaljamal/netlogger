@@ -64,7 +64,7 @@ type cmdTracker struct {
 	inEsc bool
 }
 
-func (t *cmdTracker) process(data []byte, onWriteMem func(), onQuit func()) {
+func (t *cmdTracker) process(data []byte, onWriteMem func(), onQuit func(), onConfigEnter func()) {
 	for _, b := range data {
 		switch {
 		case t.inEsc:
@@ -80,6 +80,8 @@ func (t *cmdTracker) process(data []byte, onWriteMem func(), onQuit func()) {
 				go onWriteMem()
 			} else if isQuitCmd(cmd) {
 				go onQuit()
+			} else if isConfigTrigger(cmd) {
+				go onConfigEnter()
 			}
 		case b == '\x7f' || b == '\x08':
 			s := t.buf.String()
@@ -181,14 +183,16 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 
 			send(wsMsg{Type: "connected"})
 
-			// PTY output → WebSocket
+			// PTY output → WebSocket; only buffer when config mode is active.
 			go func() {
 				buf := make([]byte, 4096)
 				for {
 					n, rdErr := ptmx.Read(buf)
 					if n > 0 {
 						sess.rawBufMu.Lock()
-						sess.rawBuf.Write(buf[:n])
+						if sess.configMode {
+							sess.rawBuf.Write(buf[:n])
+						}
 						sess.rawBufMu.Unlock()
 						send(wsMsg{
 							Type: "output",
@@ -232,6 +236,12 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 					},
 					func() {
 						sess.commitLog(fmt.Sprintf("netlogger-web: [%s] auto-commit (quit/exit)", sess.device))
+					},
+					func() {
+						sess.rawBufMu.Lock()
+						sess.configMode = true
+						sess.rawBufMu.Unlock()
+						log.Printf("config mode detected on %s — capture started", sess.device)
 					},
 				)
 			}
